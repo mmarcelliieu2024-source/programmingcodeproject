@@ -1,0 +1,219 @@
+
+# Description 
+SpendSense is positioned as the first digital solution in the Spanish ecommerce market to turn shopping into a responsible and conscious act of exchange, helping you save, gain control, and reduce your environmental footprint, by calculating both the financial and environmental impact for every purchase. 
+
+# Prerequisites 
+Python 3.8 or higher
+pip package manager
+Internet connection (for Google OAuth and OpenAI API)
+
+
+# Project structure
+
+# Configuration Options 
+option 1 : Google OAuth Setup
+- Go to Google Cloud Console
+- Create a new project or select existing
+- Enable Google+ API
+- Create OAuth 2.0 credentials:
+            Application type: Web application
+            Authorized redirect URIs: http://localhost:8501
+- Copy Client ID and Client Secret to app_secrets.py
+option 2 : OpenAI API Setup
+- Sign up at OpenAI Platform
+- Generate an API key
+- Add to app_secrets.py or .streamlit/secrets.toml
+
+Environment Variables (Alternative)
+bash
+export OPENAI_API_KEY="sk-your-key-here"
+export GOOGLE_CLIENT_ID="your-client-id"
+export GOOGLE_CLIENT_SECRET="your-client-secret"
+export GOOGLE_REDIRECT_URI="http://localhost:8501"
+
+
+
+# Authentication policies and system 
+option 1: Local Authentication
+- Email-based registration and login
+- PBKDF2-SHA256 password hashing (200,000 iterations)
+- Password complexity requirements (min 8 chars, 1 uppercase, 1 special char)
+- 90-day password expiration policy
+- Account lockout after failed attempts (5 per user, 12 global)
+option 2: Google OAuth 2.0 Integration
+- Sign in with Google
+- Automatic account creation or linking
+- Profile picture synchronization
+- Seamless authentication flow
+option 3: Role-Based Access Control
+- Admin: Full system access including database management
+- Manager: Standard features access
+- Viewer: Read-only consumption tracking
+
+# Usage Guide
+1. Sign Up / Login
+Sign Up: 
+Go to the "Sign up" tab
+Enter a valid email address
+Create a password (min 8 chars, 1 uppercase, 1 special char)
+Select a role (Viewer/Manager/Admin)
+Click "Register"
+Login:
+Option 1: Enter email and password
+Option 2: Click "Continue with Google"
+2. Upload an Item
+Click "Upload item" in the sidebar
+Choose image: Upload from gallery, OR Take a photo with camera
+Upload label (optional):
+Add label photo for better data extraction
+Use AI autocomplete for suggestions
+Review & edit information: Brand, title, price, Country of origin, Material & category, View CO₂ estimate
+Click "Confirm and continue"
+3. Find Second-Hand Alternatives
+After uploading an item:
+Click "Yes, find alternatives"
+Use marketplace quick links (Vinted, Wallapop, etc.)
+Add estimated alternatives with price slider
+Items are added to your cart
+4. Manage Shopping Cart
+Go to "Cart" in sidebar
+For each item, select an action:
+Bought the original: Records negative action
+Saved the money: Records positive action (savings = full price)
+Bought second-hand: Records positive action (savings = price difference)
+Click "Confirm" to save
+5. View Metrics
+Go to "Metrics" in sidebar
+Economic tab:
+Total savings
+Original spend
+Detailed action history
+Environmental tab:
+CO₂ avoided
+CO₂ generated
+Item-level footprint
+6. Use AI Chatbot
+Go to "Chatbot" in sidebar
+View your current data summary
+Select:
+Domain: Economic or Sustainable
+Tone: Precise or Creative
+Write your concern (optional)
+Choose action:
+Analyze: Get tailored recommendations
+Action Plan: Get 7-day actionable plan
+Keywords: Get relevant keywords
+Send concern: Same as Analyze
+Examples:
+"I overspend on clothes; I want to reduce €100/month"
+"Greener alternatives for basics (e.g., T-shirts)"
+"How can I start a simple student budget?"
+7. Admin Functions
+Admin users only:
+Go to "Admin" in sidebar
+View all users and items
+Export data as CSV
+See database file path
+
+# Configuration Options
+Database Settings (in db.py)
+DB_PATH = Path("app.db")  # Database file location
+Authentication Policies (in auth_ui2.py)
+MAX_FAILED_ATTEMPTS = 5          # Failed login attempts before lockout
+LOCKOUT_MINUTES = 15             # Account lockout duration
+GLOBAL_MAX_FAILED_ATTEMPTS = 12  # Global failed attempts limit
+GLOBAL_LOCK_MINUTES = 15         # Global lockout duration
+PASSWORD_EXPIRY_DAYS = 90        # Password expiration (0 to disable)
+Password Requirements
+Minimum 8 characters
+At least 1 uppercase letter
+At least 1 special character
+Email Validation
+Standard email format: user@domain.com
+Automatic normalization (lowercase, trimmed)
+
+# Troubleshooting 
+1. "OAuth credentials not configured"
+   → Check GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set
+   → Verify they're correct values from Google Cloud Console
+
+2. "Redirect URI mismatch"
+   → GOOGLE_REDIRECT_URI must EXACTLY match what's registered in Google Console
+   → Include http:// or https:// and port number if applicable
+   → Example: http://localhost:8501 (note: no trailing slash)
+
+3. "Token verification failed"
+   → Token may have expired (older than 1 hour)
+   → Check system clock is accurate (JWT validation uses timestamps)
+   → Ensure GOOGLE_CLIENT_ID matches the one token was issued for
+
+4. "CSRF token mismatch"
+   → State parameter returned by Google doesn't match what we sent
+   → Possible CSRF attack or session expired
+   → Regenerate state token and try again
+
+
+# Step 1 Clone of the Project with Git
+<pre>git clone https://github.com/igarciapieu2024-oss/Programming
+cd spendsense</pre>
+
+# Step 2 Creating of a virtual environment to avoid dependencies on other projects 
+<pre>python -m venv .venv
+#(macOS/Linux)
+source .venv/bin/activate
+#(Windows - CMD)
+.venv\Scripts\activate 
+#(Windows - PowerShell)
+.venv\Scripts\Activate.ps1</pre> 
+
+# Step 3 Installation libraries
+<pre>pip install streamlit
+pip install openai
+pip install pandas
+pip install google-auth
+pip install google-auth-oauthlib
+pip install google-auth-httplib2 </pre>
+
+# Step 4 Edition of the app_secrets.py 
+<pre> Enter your keys
+
+OPENAI_API_KEY = "Introduce the key for openai"
+
+#Google OAuth
+GOOGLE_CLIENT_ID = "introduce the client-id"
+GOOGLE_CLIENT_SECRET = "introduce the client secret"
+GOOGLE_REDIRECT_URI = "http://localhost:8501"
+
+#OAuth scopes
+GOOGLE_SCOPES = [
+    "openid",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile"
+]</pre>
+  
+# Step 5 Google Cloud (keys)
+#If you want to use Google Login 
+1) Go to Google CLoud Console and create a new project "name_project"
+2) Enable API by searching "Google+ API" and clicking on "Enable"
+3) Create the Google OAuth credentials: 
+Go to "Credentials" -> "Create credentials" -> "Client OAuth ID"
+Type: Web Application
+Name: "name_chosen"
+4) Add URIs:
+Redirect URIs: http://localhost:8501 (given when running in terminal, also seen in STEP 7)
+5) Copy the credentials in prior app_secrets.py
+
+# Step 6 Execute the application
+In the terminal run: 
+<pre>streamlit run app2.py</pre>
+And you will obtain a Local and Network URL
+
+# Step 7 Public publishing with Cloudfaire
+1) Run in other terminal:
+<pre>cloudflared tunnel --url http://localhost:8501</pre>
+2) Go to Google Cloud Console
+3) Credentials -> OAuth Client ID
+4) Authorized redirect URIs -> ADD:
+   http://localhost:8501 (local)
+   https://integer-tourist-perfectly-travesti.trycloudflare.com (public)
+In app_secrets.py there can be any of them as GOOGLE_REDIRECT_URI
